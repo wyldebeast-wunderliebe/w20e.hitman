@@ -3,7 +3,6 @@ from persistent import Persistent
 from zope.interface import Interface
 from zope.interface import implements
 from datetime import datetime
-from w20e.forms.formdata import FormData
 from exceptions import UniqueConstraint
 import re
 from w20e.hitman.events import ContentRemoved, ContentAdded, ContentChanged
@@ -27,7 +26,7 @@ class Base:
 
         self._id = content_id
         self.data_attr_name = data_attr_name
-        setattr(self, data_attr_name, FormData(data=data))
+        setattr(self, data_attr_name, data)
         self._created = datetime.now()
         self._changed = datetime.now()
             
