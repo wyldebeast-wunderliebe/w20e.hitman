@@ -158,7 +158,7 @@ class EditView(ContentView):
 
             self.context._changed = datetime.now()
 
-            self.request.registry.notify(ContentChanged(content, parent))
+            self.request.registry.notify(ContentChanged(self.context))
 
             return res
         else:

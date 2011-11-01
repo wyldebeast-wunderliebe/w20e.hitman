@@ -60,3 +60,6 @@ class ContentChanged(ObjectEvent):
     """ Object is changed """
 
     implements(IObjectChangedEvent)
+
+    def __init__(self, object):
+        self.object = object

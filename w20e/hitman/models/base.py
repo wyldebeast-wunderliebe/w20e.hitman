@@ -6,6 +6,7 @@ from datetime import datetime
 from exceptions import UniqueConstraint
 import re
 from w20e.hitman.events import ContentRemoved, ContentAdded, ContentChanged
+from w20e.forms.formdata import FormData
 
 
 class IContent(Interface):
@@ -63,7 +64,14 @@ class Base:
     @property
     def __data__(self):
 
-        return getattr(self, self.data_attr_name)
+        """ Wrap data in formdata container. Keep it volatile though,
+        so as not to pollute the DB. """
+
+        try:
+            return self._v_data
+        except:
+            self._v_data = FormData(data=getattr(self, self.data_attr_name))
+            return self._v_data
 
     @property
     def title(self):
