@@ -93,7 +93,7 @@ class Base:
 
         _root = self
 
-        while getattr(_root, "__parent__", None):
+        while getattr(_root, "__parent__", None) is not None:
             _root = _root.__parent__
 
         return _root
@@ -222,16 +222,17 @@ class BaseFolder(PersistentMapping, Base):
 
     def generate_content_id(self, base_id):
 
-        if not self.get_content(base_id):
-            return self._normalize_id(base_id)
+        base_id = self._normalize_id(base_id)
+
+        if not base_id in self:
+            return base_id
 
         cnt = 1
 
-        while self.get_content("%s_%s" % (base_id, cnt)):
-
+        while "%s_%s" % (base_id, cnt) in self:
             cnt += 1
 
-        return self._normalize_id("%s_%s" % (base_id, cnt))
+        return "%s_%s" % (base_id, cnt)
 
 
     def move_content(self, content_id, delta):
