@@ -7,6 +7,8 @@ from exceptions import UniqueConstraint
 import re
 from w20e.hitman.events import ContentRemoved, ContentAdded, ContentChanged
 from w20e.forms.formdata import FormData
+from w20e.forms.xml.factory import XMLFormFactory
+from w20e.forms.xml.formfile import FormFile, find_file
 
 
 class IContent(Interface):
@@ -73,6 +75,22 @@ class Base:
             self._v_data = FormData(data=getattr(self, self.data_attr_name))
             return self._v_data
 
+
+    @property
+    def __form__(self):
+
+        """ Volatile form """
+
+        try:
+            return self._v_form
+        except:
+
+            form = find_file(self.edit_form, self.__class__)
+            xmlff = XMLFormFactory(FormFile(form).filename)
+            self._v_form = xmlff.create_form(action="")
+            return self._v_form
+
+        
     @property
     def title(self):
 
@@ -103,6 +121,28 @@ class Base:
 
         return {}
 
+    @property
+    def path(self):
+
+        """ Return path from root as list of id's"""
+
+        path = [self._id]
+
+        _root = self
+
+        while getattr(_root, "__parent__", None) is not None:
+            _root = _root.__parent__
+            path.append(_root.id)
+
+        path.reverse()
+            
+        return path[1:]
+
+    @property
+    def dottedpath(self):
+
+        return ".".join(self.path)
+            
 
 class BaseContent(Persistent, Base):
 
@@ -145,10 +185,12 @@ class BaseFolder(PersistentMapping, Base):
     def remove_content(self, content_id):
 
         try:
+            content = self.get(content_id, None)
             del self[content_id]
             self._order.remove(content_id)
+            return content
         except:
-            pass
+            return None
 
 
     def get_content(self, content_id, content_type=None):
