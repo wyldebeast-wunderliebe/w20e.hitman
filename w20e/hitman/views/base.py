@@ -1,6 +1,7 @@
 from pyramid.httpexceptions import HTTPFound
 from w20e.hitman.models import Registry
-from w20e.forms.pyramid.formview import xmlformview as pyramidformview
+from w20e.forms.pyramid.formview import formview as pyramidformview
+from w20e.forms.pyramid.formview import xmlformview as pyramidxmlformview
 from w20e.forms.xml.formfile import FormFile, find_file
 from w20e.forms.form import FormValidationError
 from pyramid.url import resource_url
@@ -80,12 +81,8 @@ class ContentView(BaseView, pyramidformview):
 
     def __init__(self, context, request, form=None):
 
-        edit_form = find_file(form or context.edit_form, context.__class__)
-
         BaseView.__init__(self, context, request)
-        pyramidformview.__init__(self, context, request, 
-                                 FormFile(edit_form))
-
+        pyramidformview.__init__(self, context, request, context.__form__)
 
     @property
     def changed(self):
@@ -165,7 +162,7 @@ class EditView(ContentView):
             return res
 
 
-class AddView(BaseView, pyramidformview):
+class AddView(BaseView, pyramidxmlformview):
 
     """ add form for base content """
 
@@ -180,7 +177,7 @@ class AddView(BaseView, pyramidformview):
         add_form = find_file(clazz.add_form, clazz)
         
         if clazz:
-            pyramidformview.__init__(self, context, request,
+            pyramidxmlformview.__init__(self, context, request,
                                      FormFile(add_form),
                                      retrieve_data=False)
 
