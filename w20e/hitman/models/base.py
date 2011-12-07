@@ -25,7 +25,10 @@ class Base:
 
     """ Base content, should be extended for real content """
 
-    def __init__(self, content_id, data_attr_name="_DATA", data={}):
+    def __init__(self, content_id, data_attr_name="_DATA", data=None):
+
+        if not data:
+            data = {}
 
         self._id = content_id
         self.data_attr_name = data_attr_name
@@ -159,7 +162,10 @@ class BaseContent(Persistent, Base):
 
     implements(IContent)
 
-    def __init__(self, content_id, data={}):
+    def __init__(self, content_id, data=None):
+
+        if not data:
+            data = {}
 
         Persistent.__init__(self)
         Base.__init__(self, content_id, data=data)
@@ -171,7 +177,10 @@ class BaseFolder(PersistentMapping, Base):
 
     implements(IFolder)
 
-    def __init__(self, content_id, data={}):
+    def __init__(self, content_id, data=None):
+
+        if not data:
+            data = {}
 
         PersistentMapping.__init__(self)
         Base.__init__(self, content_id, data=data)
