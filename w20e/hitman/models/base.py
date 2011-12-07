@@ -30,7 +30,6 @@ class Base:
         setattr(self, data_attr_name, data)
         self._created = datetime.now()
         self._changed = datetime.now()
-            
 
     @property
     def id(self):
@@ -72,6 +71,18 @@ class Base:
         except:
             self._v_data = FormData(data=getattr(self, self.data_attr_name))
             return self._v_data
+
+    def set_attribute(self, name, value):
+        """ store an attribut in a low level manner """
+
+        data = getattr(self, self.data_attr_name)
+        data[name] = value
+        self._p_changed = 1
+        # remove volatile cached data
+        try:
+            del(self._v_data)
+        except:
+            pass  # no worries.we didn't have the cached value
 
     @property
     def title(self):
@@ -128,7 +139,6 @@ class BaseFolder(PersistentMapping, Base):
         Base.__init__(self, content_id, data=data)
         self._order = []
 
-
     def add_content(self, content):
 
         # don't replace the content
@@ -141,7 +151,6 @@ class BaseFolder(PersistentMapping, Base):
         self[content.id] = content
         self._order.append(content.id)
 
-
     def remove_content(self, content_id):
 
         try:
@@ -149,7 +158,6 @@ class BaseFolder(PersistentMapping, Base):
             self._order.remove(content_id)
         except:
             pass
-
 
     def get_content(self, content_id, content_type=None):
 
@@ -167,7 +175,6 @@ class BaseFolder(PersistentMapping, Base):
 
         return obj
 
-
     def list_content(self, content_type=None, **kwargs):
 
         """ List content of this folder. If content_type is given,
@@ -178,9 +185,10 @@ class BaseFolder(PersistentMapping, Base):
 
         # start with order on self._order if it's there...
         for content_id in self._order:
-            if self.has_key(content_id):
+            if content_id in self:
                 all_content.append(self[content_id])
-        all_content += [content for content in self.values() if not content.id in self._order]
+        all_content += [content for content in self.values() \
+                if not content.id in self._order]
 
         if content_type:
             all_content = [obj for obj in all_content if getattr(obj,\
@@ -193,7 +201,6 @@ class BaseFolder(PersistentMapping, Base):
 
         return all_content
 
-    
     def find_content(self, content_type=None):
 
         """ Find content recursively from the given folder. Use it
@@ -204,13 +211,12 @@ class BaseFolder(PersistentMapping, Base):
         for sub in self.list_content():
 
             try:
-                found += sub.find_content(content_type= content_type)
+                found += sub.find_content(content_type=content_type)
             except:
                 # looks like it's not a folder...
                 pass
 
         return found
-        
 
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
@@ -218,7 +224,6 @@ class BaseFolder(PersistentMapping, Base):
         id = str(id).lower()
         id = re.sub('[^-a-z0-9_]+', '-', id)
         return id
-
 
     def generate_content_id(self, base_id):
 
@@ -234,7 +239,6 @@ class BaseFolder(PersistentMapping, Base):
 
         return "%s_%s" % (base_id, cnt)
 
-
     def move_content(self, content_id, delta):
 
         """ Move the content in the order by delta, where delta may be
@@ -247,7 +251,6 @@ class BaseFolder(PersistentMapping, Base):
             self._order.insert(curr_idx + delta, content_id)
         except:
             pass
-
 
     def set_order(self, order=[]):
 
