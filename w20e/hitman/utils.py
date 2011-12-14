@@ -3,9 +3,10 @@ def path_to_object(path, root, path_sep="/"):
     """ Given a path, return the object from the hierarchy """
 
     path = path.split(path_sep)[1:]
+    path = [p for p in path if p]
 
     if not len(path):
-        return None
+        return root
 
     obj = None
     parent = root
@@ -38,4 +39,7 @@ def object_to_path(obj, path_sep="/", as_list=False):
     if as_list:
         return path[1:]
     else:
-        return path_sep.join([''] + path[1:])
+        value = path_sep.join([''] + path[1:])
+        if not value.startswith(path_sep):
+            value = path_sep + value
+        return value
