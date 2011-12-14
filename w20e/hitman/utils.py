@@ -1,8 +1,8 @@
-def path_to_object(path, root, path_sep="."):
+def path_to_object(path, root, path_sep="/"):
 
     """ Given a path, return the object from the hierarchy """
 
-    path = path.split(path_sep)
+    path = path.split(path_sep)[1:]
     
     if not len(path):
         return None
@@ -21,7 +21,7 @@ def path_to_object(path, root, path_sep="."):
     return obj
 
 
-def object_to_path(obj, path_sep=".", as_list=False):
+def object_to_path(obj, path_sep="/", as_list=False):
 
     """ Give an object, return the path """
 
@@ -38,4 +38,4 @@ def object_to_path(obj, path_sep=".", as_list=False):
     if as_list:
         return path[1:]
     else:
-        return path_sep.join(path[1:])
+        return path_sep.join([''] + path[1:])
