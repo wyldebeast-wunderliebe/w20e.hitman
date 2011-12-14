@@ -9,6 +9,7 @@ from w20e.hitman.events import ContentRemoved, ContentAdded, ContentChanged
 from w20e.forms.formdata import FormData
 from w20e.forms.xml.factory import XMLFormFactory
 from w20e.forms.xml.formfile import FormFile, find_file
+from w20e.hitman.utils import object_to_path
 
 
 class IContent(Interface):
@@ -138,23 +139,13 @@ class Base:
 
         """ Return path from root as list of id's"""
 
-        path = [self._id]
-
-        _root = self
-
-        while getattr(_root, "__parent__", None) is not None:
-            _root = _root.__parent__
-            path.append(_root.id)
-
-        path.reverse()
-            
-        return path[1:]
+        return object_to_path(self, as_list=True)
 
     @property
     def dottedpath(self):
 
-        return ".".join(self.path)
-            
+        return object_to_path(self, path_sep=".", as_list=True)
+
 
 class BaseContent(Persistent, Base):
 

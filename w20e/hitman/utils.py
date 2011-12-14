@@ -21,18 +21,21 @@ def path_to_object(path, root, path_sep="."):
     return obj
 
 
-def object_to_path(obj, path_sep="."):
+def object_to_path(obj, path_sep=".", as_list=False):
 
     """ Give an object, return the path """
 
-    path = [self._id]
+    path = [obj._id]
 
-    _root = self
+    _root = obj
 
     while getattr(_root, "__parent__", None) is not None:
         _root = _root.__parent__
         path.append(_root.id)
 
     path.reverse()
-            
-    return path_sep.join(path[1:])
+
+    if as_list:
+        return path[1:]
+    else:
+        return path_sep.join(path[1:])
