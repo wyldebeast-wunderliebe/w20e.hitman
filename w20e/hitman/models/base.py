@@ -5,7 +5,6 @@ from zope.interface import implements
 from datetime import datetime
 from exceptions import UniqueConstraint
 import re
-from w20e.hitman.events import ContentRemoved, ContentAdded, ContentChanged
 from w20e.forms.formdata import FormData
 from w20e.forms.xml.factory import XMLFormFactory
 from w20e.forms.xml.formfile import FormFile, find_file
@@ -189,6 +188,30 @@ class BaseFolder(PersistentMapping, Base):
         self[content.id] = content
         self._order.append(content.id)
 
+    def rename_content(self, id_from, id_to):
+
+        """ Move object at id_from to id_to key"""
+
+        if id_to in self:
+            raise UniqueConstraint("an item with this ID already exists at \
+                    this level")
+
+        content = self.get(id_from, None)
+
+        if content is None:
+            return False
+        
+        del self[id_from]
+        
+        content._id = id_to
+
+        # retain order
+        if id_from in self._order:
+            self._order[self._order.index(id_from)] = id_to
+
+        self[content.id] = content
+
+
     def remove_content(self, content_id):
 
         try:
@@ -221,23 +244,26 @@ class BaseFolder(PersistentMapping, Base):
         list only these things.
         """
 
-        all_content = []
-
-        # start with order on self._order if it's there...
-        for content_id in self._order:
-            if content_id in self:
-                all_content.append(self[content_id])
-        all_content += [content for content in self.values() \
-                if not content.id in self._order]
-
         if content_type:
-            all_content = [obj for obj in all_content if getattr(obj,\
+            all_content = [obj for obj in self.values() if getattr(obj,\
                      'content_type', None) == content_type]
+        else:
+            all_content = self.values()
 
         if kwargs.get('order_by', None):
             all_content.sort(lambda a, b: \
-                    cmp(getattr(a, kwargs['order_by'], 1),
-                        getattr(b, kwargs['order_by'], 1)))
+                             cmp(getattr(a, kwargs['order_by'], 1),
+                                 getattr(b, kwargs['order_by'], 1)))
+        else:
+            def _order_cmp(a, b):
+
+                max_order = len(self._order) + 1
+
+                return cmp(a.id in self._order and self._order.index(a.id) or max_order,
+                           b.id in self._order and self._order.index(b.id) or max_order,
+                           )
+            
+            all_content.sort(_order_cmp)
 
         return all_content
 

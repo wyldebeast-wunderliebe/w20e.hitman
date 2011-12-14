@@ -6,7 +6,6 @@ from w20e.forms.xml.formfile import FormFile, find_file
 from w20e.forms.form import FormValidationError
 from pyramid.url import resource_url
 from datetime import datetime
-from pyramid.security import has_permission, authenticated_userid
 from ..events import ContentRemoved, ContentAdded, ContentChanged
 
 
