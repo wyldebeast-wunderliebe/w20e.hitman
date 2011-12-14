@@ -42,7 +42,7 @@ class ContentAdded(ObjectEvent):
     def __init__(self, object, parent):
         self.object = object
         self.parent = parent
-        
+
 
 class ContentRemoved(ObjectEvent):
 

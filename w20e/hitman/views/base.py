@@ -19,30 +19,25 @@ class BaseView(object):
         self.context = context
         self.request = request
 
-
     @property
     def parent_url(self):
 
         return resource_url(self.context.__parent__, self.request)
-
 
     @property
     def url(self):
 
         return resource_url(self.context, self.request)
 
-
     @property
     def allowed_content_types(self):
 
         return self.context.allowed_content_types
 
-
     @property
     def has_parent(self):
 
         return self.context.has_parent
-
 
     def list_content(self, **kwargs):
 
@@ -51,23 +46,19 @@ class BaseView(object):
         except:
             return []
 
-
     @property
     def content_type(self):
 
         return self.context.content_type
-
 
     @property
     def title(self):
 
         return self.context.title
 
-
     def __call__(self):
 
         return {}
-
 
     @property
     def created(self):
@@ -89,7 +80,6 @@ class ContentView(BaseView, pyramidformview):
 
         return self.context.changed.strftime("%d-%m-%Y %H:%M")
 
-
     def list_fields(self):
 
         """ Return fields as dict {name, lexical value} """
@@ -107,8 +97,8 @@ class ContentView(BaseView, pyramidformview):
                 label = renderable.label
 
             if label:
-                fields.append({'label': label, 
-                               'value': val, 
+                fields.append({'label': label,
+                               'value': val,
                                'type': renderable.type,
                                'raw': raw})
 
@@ -138,12 +128,10 @@ class EditView(ContentView):
 
     """ Generic edit form """
 
-
     @property
     def content_type(self):
 
         return self.context.content_type
-
 
     def __call__(self):
 
@@ -175,7 +163,7 @@ class AddView(BaseView, pyramidxmlformview):
         clazz = Registry.get(ctype)
 
         add_form = find_file(clazz.add_form, clazz)
-        
+
         if clazz:
             pyramidxmlformview.__init__(self, context, request,
                                      FormFile(add_form),
@@ -184,12 +172,10 @@ class AddView(BaseView, pyramidxmlformview):
         self.ctype = ctype
         self.clazz = clazz
 
-
     @property
     def content_type(self):
 
         return self.ctype
-
 
     def __call__(self):
 
