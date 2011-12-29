@@ -106,6 +106,13 @@ class ContentView(BaseView, pyramidformview):
 
 class DelView(BaseView):
 
+    @property
+    def after_del_redirect(self):
+
+        """ Where to go after successfull delete?"""
+
+        return self.parent_url
+
     def __call__(self):
 
         if self.request.params.get("submit", None):
@@ -116,7 +123,7 @@ class DelView(BaseView):
             parent.remove_content(self.context.id)
 
             self.request.registry.notify(ContentRemoved(content, parent))
-            return HTTPFound(location=self.parent_url)
+            return HTTPFound(location=self.after_del_redirect)
         elif self.request.params.get("cancel", None):
             return HTTPFound(location=self.url)
 
@@ -131,6 +138,13 @@ class EditView(ContentView):
     def content_type(self):
 
         return self.context.content_type
+
+    @property
+    def after_edit_redirect(self):
+
+        """ Where to go after successfull edit?"""
+
+        return self.url
 
     def __call__(self):
 
@@ -176,6 +190,20 @@ class AddView(BaseView, pyramidxmlformview):
 
         return self.ctype
 
+    @property
+    def after_add_redirect(self):
+
+        """ Where to go after successfull add?"""
+
+        return self.url
+
+    @property
+    def cancel_add_redirect(self):
+
+        """ Where to go after cancelled add?"""
+
+        return self.url
+
     def __call__(self):
 
         if not self.ctype or not self.clazz:
@@ -185,7 +213,7 @@ class AddView(BaseView, pyramidxmlformview):
         res = {'status': 'called', 'errors': {}}
 
         if self.request.params.get("cancel", None):
-            return HTTPFound(location=self.url)
+            return HTTPFound(location=self.cancel_add_redirect)
 
         if self.request.params.get("submit", None):
 
@@ -214,6 +242,6 @@ class AddView(BaseView, pyramidxmlformview):
 
             self.request.registry.notify(ContentAdded(content, self.context))
 
-            return HTTPFound(location=self.url)
+            return HTTPFound(location=self.after_add_redirect)
 
         return res

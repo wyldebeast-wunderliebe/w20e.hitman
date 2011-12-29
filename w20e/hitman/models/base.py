@@ -259,8 +259,10 @@ class BaseFolder(PersistentMapping, Base):
 
                 max_order = len(self._order) + 1
 
-                return cmp(a.id in self._order and self._order.index(a.id) or max_order,
-                           b.id in self._order and self._order.index(b.id) or max_order,
+                return cmp(self._order.index(a.id) if a.id in self._order \
+                           else max_order,
+                            self._order.index(b.id) if b.id in self._order \
+                                                    else max_order,
                            )
             
             all_content.sort(_order_cmp)
