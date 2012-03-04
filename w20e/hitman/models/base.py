@@ -4,6 +4,7 @@ from zope.interface import Interface
 from zope.interface import implements
 from datetime import datetime
 from exceptions import UniqueConstraint
+from BTrees.OOBTree import OOBTree                                              
 import re
 from w20e.forms.formdata import FormData
 from w20e.forms.xml.factory import XMLFormFactory
@@ -32,7 +33,7 @@ class Base:
 
         self._id = content_id
         self.data_attr_name = data_attr_name
-        setattr(self, data_attr_name, data)
+        setattr(self, data_attr_name, OOBTree(data))
         self._created = datetime.now()
         self._changed = datetime.now()
 
@@ -74,7 +75,15 @@ class Base:
         try:
             return self._v_data
         except:
-            self._v_data = FormData(data=getattr(self, self.data_attr_name))
+
+            data = getattr(self, self.data_attr_name)
+
+            # migrate old hashmaps to OOBTree if necessary
+            if not isinstance(data, OOBTree):
+                data = OOBTree(data)
+                setattr(self, self.data_attr_name, data)
+            
+            self._v_data = FormData(data=data)
             return self._v_data
 
     def set_attribute(self, name, value):
