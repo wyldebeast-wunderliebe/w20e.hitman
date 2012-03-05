@@ -4,7 +4,7 @@ from zope.interface import Interface
 from zope.interface import implements
 from datetime import datetime
 from exceptions import UniqueConstraint
-from BTrees.OOBTree import OOBTree                                              
+from BTrees.OOBTree import OOBTree
 import re
 from w20e.forms.formdata import FormData
 from w20e.forms.xml.factory import XMLFormFactory
@@ -82,7 +82,7 @@ class Base:
             if not isinstance(data, OOBTree):
                 data = OOBTree(data)
                 setattr(self, self.data_attr_name, data)
-            
+
             self._v_data = FormData(data=data)
             return self._v_data
 
@@ -209,9 +209,9 @@ class BaseFolder(PersistentMapping, Base):
 
         if content is None:
             return False
-        
+
         del self[id_from]
-        
+
         content._id = id_to
 
         # retain order
@@ -219,7 +219,6 @@ class BaseFolder(PersistentMapping, Base):
             self._order[self._order.index(id_from)] = id_to
 
         self[content.id] = content
-
 
     def remove_content(self, content_id):
 
@@ -247,16 +246,22 @@ class BaseFolder(PersistentMapping, Base):
 
         return obj
 
-    def list_content(self, content_type=None, **kwargs):
+    def list_content(self, content_type=None, iface=None, **kwargs):
 
         """ List content of this folder. If content_type is given,
         list only these things.
         """
 
+        all_content = []
+
         if content_type:
-            all_content = [obj for obj in self.values() if getattr(obj,\
-                     'content_type', None) == content_type]
-        else:
+            all_content = [obj for obj in self.values() \
+                    if getattr(obj, 'content_type', None) == content_type]
+        if iface:
+            all_content = [obj for obj in self.values() \
+                    if iface.providedBy(obj)]
+
+        if not (content_type or iface):
             all_content = self.values()
 
         if kwargs.get('order_by', None):
@@ -273,7 +278,7 @@ class BaseFolder(PersistentMapping, Base):
                             self._order.index(b.id) if b.id in self._order \
                                                     else max_order,
                            )
-            
+
             all_content.sort(_order_cmp)
 
         return all_content
@@ -285,7 +290,10 @@ class BaseFolder(PersistentMapping, Base):
 
         found = self.list_content(content_type=content_type)
 
-        for sub in self.list_content():
+        # recurse through folderish types.
+        folders = self.list_content(iface=IFolder)
+
+        for sub in folders:
 
             try:
                 found += sub.find_content(content_type=content_type)
