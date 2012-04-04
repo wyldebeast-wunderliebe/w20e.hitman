@@ -155,7 +155,10 @@ class EditView(ContentView):
         elif res.get('status', None) == "stored":
 
             self.context._changed = datetime.now()
-            delattr(self.context, "_v_data")
+            try:
+                delattr(self.context, "_v_data")
+            except:
+                pass
             self.request.registry.notify(ContentChanged(self.context))
 
             return res

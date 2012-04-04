@@ -29,7 +29,7 @@ class Base:
 
         if not data:
             data = {}
-
+  
         self._id = content_id
         self.data_attr_name = data_attr_name
         setattr(self, data_attr_name, data)
@@ -211,7 +211,6 @@ class BaseFolder(PersistentMapping, Base):
 
         self[content.id] = content
 
-
     def remove_content(self, content_id):
 
         try:
@@ -237,6 +236,24 @@ class BaseFolder(PersistentMapping, Base):
                 return None
 
         return obj
+
+    def list_content_ids(self, **kwargs):
+
+        all_ids = self.keys()
+
+        def _order_cmp(a, b):
+            
+            max_order = len(self._order) + 1
+            
+            return cmp(self._order.index(a) if a in self._order \
+                       else max_order,
+                       self._order.index(b) if b in self._order \
+                                               else max_order,
+                       )
+        
+        all_ids.sort(_order_cmp)
+
+        return all_ids
 
     def list_content(self, content_type=None, **kwargs):
 
