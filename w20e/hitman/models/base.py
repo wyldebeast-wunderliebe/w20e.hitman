@@ -246,7 +246,6 @@ class BaseFolder(PersistentMapping, Base):
 
         return obj
 
-<<<<<<< HEAD
     def list_content_ids(self, **kwargs):
 
         all_ids = self.keys()
