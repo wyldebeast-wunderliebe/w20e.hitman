@@ -30,7 +30,7 @@ class Base:
 
         if not data:
             data = {}
-  
+
         self._id = content_id
         self.data_attr_name = data_attr_name
         setattr(self, data_attr_name, OOBTree(data))
@@ -169,6 +169,11 @@ class BaseContent(Persistent, Base):
         Persistent.__init__(self)
         Base.__init__(self, content_id, data=data)
 
+    def __repr__(self):
+        """ return the ID as base representation """
+
+        return self.id
+
 
 class BaseFolder(PersistentMapping, Base):
 
@@ -251,15 +256,15 @@ class BaseFolder(PersistentMapping, Base):
         all_ids = self.keys()
 
         def _order_cmp(a, b):
-            
+
             max_order = len(self._order) + 1
-            
+
             return cmp(self._order.index(a) if a in self._order \
                        else max_order,
                        self._order.index(b) if b in self._order \
                                                else max_order,
                        )
-        
+
         all_ids.sort(_order_cmp)
 
         return all_ids
@@ -273,8 +278,11 @@ class BaseFolder(PersistentMapping, Base):
         all_content = []
 
         if content_type:
+            if isinstance(content_type, str):
+                content_type = [content_type,]
+
             all_content = [obj for obj in self.values() \
-                    if getattr(obj, 'content_type', None) == content_type]
+                    if getattr(obj, 'content_type', None) in content_type]
         if iface:
             all_content = [obj for obj in self.values() \
                     if iface.providedBy(obj)]
@@ -358,3 +366,8 @@ class BaseFolder(PersistentMapping, Base):
     def set_order(self, order=[]):
 
         self._order = order
+
+    def __repr__(self):
+        """ return the ID as base representation """
+
+        return self.id
