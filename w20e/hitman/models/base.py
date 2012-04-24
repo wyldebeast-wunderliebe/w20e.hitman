@@ -218,6 +218,7 @@ class BaseFolder(PersistentMapping, Base):
         del self[id_from]
 
         content._id = id_to
+        content.__name__ = id_to
 
         # retain order
         if id_from in self._order:
