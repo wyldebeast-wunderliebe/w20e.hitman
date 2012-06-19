@@ -152,7 +152,9 @@ class Base:
     @property
     def dottedpath(self):
 
-        return object_to_path(self, path_sep=".", as_list=True)
+        """ Return path as dot separated string """
+
+        return object_to_path(self, path_sep=".", as_list=False)
 
 
 class BaseContent(Persistent, Base):
