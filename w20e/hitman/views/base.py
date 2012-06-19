@@ -29,20 +29,6 @@ class BaseView(object):
         return resource_url(self.context, self.request)
 
     @property
-    def breadcrumbs(self):
-        """ return the breadcrumbs for current object """
-
-        path = [self.context]
-        _root = self.context
-
-        while getattr(_root, "__parent__", None) is not None:
-            _root = _root.__parent__
-            path.append(_root)
-
-        path.reverse()
-        return path
-
-    @property
     def allowed_content_types(self):
 
         return self.context.allowed_content_types
