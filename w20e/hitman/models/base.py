@@ -1,7 +1,7 @@
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
-from zope.interface import Interface
-from zope.interface import implements
+from zope.interface import Interface, implements
+from zope.component import queryAdapter, subscribers
 from datetime import datetime
 from exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
@@ -110,6 +110,7 @@ class Base:
             form = find_file(self.edit_form, self.__class__)
             xmlff = XMLFormFactory(FormFile(form).filename)
             self._v_form = xmlff.create_form(action="")
+
             return self._v_form
 
     @property

@@ -18,6 +18,10 @@ class BaseView(object):
         self.context = context
         self.request = request
 
+    def __call__(self):
+
+        return {}
+
     @property
     def parent_url(self):
 
@@ -54,10 +58,6 @@ class BaseView(object):
     def title(self):
 
         return self.context.title
-
-    def __call__(self):
-
-        return {}
 
     @property
     def created(self):
@@ -152,7 +152,7 @@ class EditView(ContentView):
 
         if res.get('status', None) == "cancelled":
             return HTTPFound(location=self.url)
-        elif res.get('status', None) == "stored":
+        elif res.get('status', None) in ["stored", "completed"]:
 
             self.context._changed = datetime.now()
             try:
@@ -161,12 +161,12 @@ class EditView(ContentView):
                 pass
             self.request.registry.notify(ContentChanged(self.context))
 
-            return res
+            return HTTPFound(location=self.after_edit_redirect)
         else:
             return res
 
 
-class AddView(BaseView, pyramidxmlformview):
+class AddView(BaseView, pyramidformview):
 
     """ add form for base content """
 
@@ -178,12 +178,19 @@ class AddView(BaseView, pyramidxmlformview):
 
         clazz = Registry.get(ctype)
 
-        add_form = find_file(clazz.add_form, clazz)
+        tmp_obj = clazz("TMP")
 
-        if clazz:
-            pyramidxmlformview.__init__(self, context, request,
-                                     FormFile(add_form),
-                                     retrieve_data=False)
+        form = tmp_obj.__form__
+
+        # We may have session data
+        try:
+            form.data.from_dict(self.request.session["_TMP_OBJ_DATA"])
+        except:
+            pass
+
+        pyramidformview.__init__(self, context, request,
+                                 form,
+                                 retrieve_data=False)
 
         self.ctype = ctype
         self.clazz = clazz
@@ -212,39 +219,36 @@ class AddView(BaseView, pyramidxmlformview):
         if not self.ctype or not self.clazz:
             return HTTPFound(location=self.url)
 
-        form = self.form
-        res = {'status': 'called', 'errors': {}}
-
-        if self.request.params.get("cancel", None):
-            return HTTPFound(location=self.cancel_add_redirect)
+        errors = {}
 
         if self.request.params.get("submit", None):
+            status, errors = self.form.view.handle_form(self.form,
+                                                        self.request.params)
+        elif self.request.params.get("cancel", None):
+            status = "cancelled"
+        else:
+            status = "unknown"
 
-            self._process_data(form, form.view, self.request.params)
-            res['status'] = 'processed'
+        if status == "valid":
 
-            try:
-                form.validate()
+            # Hmm, looks like multipage. Store data in session and proceed...
+            self.request.session['_TMP_OBJ_DATA'] = self.form.data.as_dict()
 
-            except FormValidationError, fve:
-                res['errors'] = fve.errors
-                res['status'] = 'error'
-
-        if res['status'] == "processed":
+        if status == "completed":
 
             content = self.clazz("_TMP")
+            
+            self.form.submission.submit(self.form, content, self.request)
 
-            form.submission.submit(form, content, self.request)
-            res['status'] = 'stored'
+            status = 'stored'
 
             content_id = self.context.generate_content_id(content.base_id)
             content.set_id(content_id)
 
             self.context.add_content(content)
-            res['object'] = content
 
             self.request.registry.notify(ContentAdded(content, self.context))
 
             return HTTPFound(location=self.after_add_redirect)
 
-        return res
+        return {'status': status, 'errors': errors}

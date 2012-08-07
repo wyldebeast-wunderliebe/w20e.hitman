@@ -13,12 +13,12 @@ requires = [
     ]
 
 setup(name='w20e.hitman',
-      version='0.1a',
-      description='hitman',
+      version='1.1.0a',
+      description='hitman is the Hierarchical Things Manager for Pyramid.',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Programming Language :: Python",
-        "Framework :: Pylons",
+        "Framework :: Pyramid",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         ],
@@ -31,6 +31,6 @@ setup(name='w20e.hitman',
       zip_safe=False,
       install_requires = requires,
       tests_require= requires,
-      test_suite="hitman",
+      test_suite="w20e.hitman",
       entry_points = "",
       )
