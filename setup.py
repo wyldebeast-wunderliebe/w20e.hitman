@@ -9,6 +9,7 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'pyramid',
     'ZODB3',
+    'zope.component',
     'w20e.forms'
     ]
 
