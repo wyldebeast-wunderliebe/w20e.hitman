@@ -32,7 +32,7 @@ class BaseView(object):
     @property
     def allowed_content_types(self):
 
-        return self.context.allowed_content_types
+        return self.context.allowed_content_types(self.request)
 
     @property
     def has_parent(self):
@@ -69,7 +69,8 @@ class ContentView(BaseView, pyramidformview):
     def __init__(self, context, request, form=None):
 
         BaseView.__init__(self, context, request)
-        pyramidformview.__init__(self, context, request, context.__form__)
+        pyramidformview.__init__(self, context, request,
+                context.__form__(request))
 
     @property
     def changed(self):
@@ -177,7 +178,7 @@ class AddView(BaseView, pyramidformview):
 
         tmp_obj = clazz("TMP")
 
-        form = tmp_obj.__form__
+        form = tmp_obj.__form__(request)
 
         # We may have session data
         try:

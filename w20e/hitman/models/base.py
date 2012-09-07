@@ -98,8 +98,7 @@ class Base:
         except:
             pass  # no worries.we didn't have the cached value
 
-    @property
-    def __form__(self):
+    def __form__(self, request):
 
         """ Volatile form """
 
