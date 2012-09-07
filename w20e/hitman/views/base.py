@@ -1,9 +1,6 @@
 from pyramid.httpexceptions import HTTPFound
 from w20e.hitman.models import Registry
 from w20e.forms.pyramid.formview import formview as pyramidformview
-from w20e.forms.pyramid.formview import xmlformview as pyramidxmlformview
-from w20e.forms.xml.formfile import FormFile, find_file
-from w20e.forms.form import FormValidationError
 from pyramid.url import resource_url
 from datetime import datetime
 from ..events import ContentRemoved, ContentAdded, ContentChanged
@@ -237,7 +234,7 @@ class AddView(BaseView, pyramidformview):
         if status == "completed":
 
             content = self.clazz("_TMP")
-            
+
             self.form.submission.submit(self.form, content, self.request)
 
             status = 'stored'

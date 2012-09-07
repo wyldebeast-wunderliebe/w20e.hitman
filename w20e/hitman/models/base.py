@@ -1,14 +1,14 @@
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
 from zope.interface import Interface, implements
-from zope.component import queryAdapter, subscribers
 from datetime import datetime
 from exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
 import re
 from w20e.forms.formdata import FormData
 from w20e.forms.xml.factory import XMLFormFactory
-from w20e.forms.xml.formfile import FormFile, find_file
+from w20e.forms.xml.formfile import FormFile
+from w20e.forms.utils import find_file
 from w20e.hitman.utils import object_to_path
 
 
@@ -283,7 +283,7 @@ class BaseFolder(PersistentMapping, Base):
 
         if content_type:
             if isinstance(content_type, str):
-                content_type = [content_type,]
+                content_type = [content_type]
 
             all_content = [obj for obj in self.values() \
                     if getattr(obj, 'content_type', None) in content_type]
