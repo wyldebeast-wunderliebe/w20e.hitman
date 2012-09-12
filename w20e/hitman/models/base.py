@@ -91,6 +91,7 @@ class Base:
 
         data = getattr(self, self.data_attr_name)
         data[name] = value
+        self._changed = datetime.now()
         self._p_changed = 1
         # remove volatile cached data
         try:
@@ -254,7 +255,11 @@ class BaseFolder(PersistentMapping, Base):
 
         return obj
 
-    def list_content_ids(self, **kwargs):
+    def _list_content_ids(self, **kwargs):
+        """
+        return all content IDs.
+        NOTE: also returns temporary object IDs
+        """
 
         all_ids = self.keys()
 
