@@ -180,11 +180,8 @@ class AddView(BaseView, pyramidformview):
 
         form = tmp_obj.__form__(request)
 
-        # We may have session data
-        try:
-            form.data.from_dict(self.request.session["_TMP_OBJ_DATA"])
-        except:
-            pass
+        # note: If you want to prefill the formdata, you can use
+        # the __form__ override, or if in pycms, use the IFormModifier
 
         pyramidformview.__init__(self, context, request,
                                  form,
@@ -227,10 +224,10 @@ class AddView(BaseView, pyramidformview):
         else:
             status = "unknown"
 
-        if status == "valid":
-
-            # Hmm, looks like multipage. Store data in session and proceed...
-            self.request.session['_TMP_OBJ_DATA'] = self.form.data.as_dict()
+        #if status == "valid":
+        #    # Hmm, looks like multipage. do nothing?
+        #    #content = self.clazz("_TMP")
+        #    #self.form.submission.submit(self.form, content, self.request)
 
         if status == "completed":
 
