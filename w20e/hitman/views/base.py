@@ -132,6 +132,21 @@ class EditView(ContentView):
 
     """ Generic edit form """
 
+
+    def __init__(self, context, request):
+
+        ContentView.__init__(self, context, request)
+
+        # Clone the data, in case of a multi-page form. Only submit the
+        # data when the form is completed
+        if self.request.method == 'GET':
+            _cloned_data = context._cloned_data = self.form.data.as_dict()
+        elif self.request.method == 'POST':
+            _cloned_data = getattr(context, '_cloned_data', None)
+        if not _cloned_data:
+            _cloned_data = context._cloned_data = self.form.data.as_dict()
+        self.form.data.from_dict(_cloned_data)
+
     @property
     def content_type(self):
 
@@ -149,8 +164,23 @@ class EditView(ContentView):
         res = pyramidformview.__call__(self)
 
         if res.get('status', None) == "cancelled":
+            _cloned_data = getattr(self.context, '_cloned_data', None)
+            if _cloned_data:
+                del self.context._cloned_data
             return HTTPFound(location=self.url)
+
+        elif res.get('status', None) == "valid":
+            self.context._cloned_data = self.form.data.as_dict()
+
         elif res.get('status', None) in ["stored", "completed"]:
+
+            # submit the temporary data to the current context
+            _cloned_data = getattr(self.context, '_cloned_data', None)
+            if _cloned_data:
+                self.form.data.from_dict(_cloned_data)
+                self.form.submission.submit(self.form, self.context,
+                        self.request)
+                del self.context._cloned_data
 
             self.context._changed = datetime.now()
             try:
@@ -160,8 +190,8 @@ class EditView(ContentView):
             self.request.registry.notify(ContentChanged(self.context))
 
             return HTTPFound(location=self.after_edit_redirect)
-        else:
-            return res
+
+        return res
 
 
 class AddView(BaseView, pyramidformview):
@@ -216,7 +246,8 @@ class AddView(BaseView, pyramidformview):
 
         errors = {}
 
-        if self.request.params.get("submit", None):
+        submissions = set(["submit", "save", "w20e.forms.next"])
+        if submissions.intersection(self.request.params.keys()):
             status, errors = self.form.view.handle_form(self.form,
                                                         self.request.params)
         elif self.request.params.get("cancel", None):
