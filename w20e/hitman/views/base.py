@@ -164,22 +164,20 @@ class EditView(ContentView):
         res = pyramidformview.__call__(self)
 
         if res.get('status', None) == "cancelled":
-            _cloned_data = getattr(self.context, '_cloned_data', None)
-            if _cloned_data:
+            if hasattr(self.context, '_cloned_data'):
                 del self.context._cloned_data
+                self.context._p_changed = 1
             return HTTPFound(location=self.url)
 
         elif res.get('status', None) == "valid":
+            # a page in the multipage form has been submitted. save the data
+            # in the temporary data container
             self.context._cloned_data = self.form.data.as_dict()
+            self.context._p_changed = 1
 
-        elif res.get('status', None) in ["stored", "completed"]:
+        elif res.get('status', None) == "completed":
 
-            # submit the temporary data to the current context
-            _cloned_data = getattr(self.context, '_cloned_data', None)
-            if _cloned_data:
-                self.form.data.from_dict(_cloned_data)
-                self.form.submission.submit(self.form, self.context,
-                        self.request)
+            if hasattr(self.context, '_cloned_data'):
                 del self.context._cloned_data
 
             self.context._changed = datetime.now()
@@ -188,6 +186,7 @@ class EditView(ContentView):
             except:
                 pass
             self.request.registry.notify(ContentChanged(self.context))
+            self.context._p_changed = 1
 
             return HTTPFound(location=self.after_edit_redirect)
 
