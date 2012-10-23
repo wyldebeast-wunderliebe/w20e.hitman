@@ -14,7 +14,7 @@ requires = [
     ]
 
 setup(name='w20e.hitman',
-      version='1.1.0a',
+      version='1.1.1rc',
       description='hitman is the Hierarchical Things Manager for Pyramid.',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[

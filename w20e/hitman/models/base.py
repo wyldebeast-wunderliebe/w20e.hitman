@@ -51,8 +51,7 @@ class Base:
 
         return self.__class__.__name__.lower()
 
-    @property
-    def allowed_content_types(self):
+    def allowed_content_types(self, request):
 
         return []
 
