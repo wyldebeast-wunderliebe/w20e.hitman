@@ -54,7 +54,7 @@ class Base(object):
     def owner(self):
         """ get the creator userid """
 
-        return getattr(self, '_owner', None)
+        return getattr(self, '_owner', '')
 
     @owner.setter
     def owner(self, value):
