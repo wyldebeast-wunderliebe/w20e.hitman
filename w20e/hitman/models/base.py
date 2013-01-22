@@ -22,7 +22,7 @@ class IFolder(IContent):
     """ Marker for folderish content """
 
 
-class Base:
+class Base(object):
 
     """ Base content, should be extended for real content """
 
@@ -30,6 +30,10 @@ class Base:
 
         if not data:
             data = {}
+
+        # sanity check.. ID cannot be empty
+        if not content_id:
+            raise Exception("ID should not be empty")
 
         self._id = content_id
         self.data_attr_name = data_attr_name
@@ -45,6 +49,19 @@ class Base:
     def set_id(self, id):
 
         self._id = id
+
+    @property
+    def owner(self):
+        """ get the creator userid """
+
+        return getattr(self, '_owner', None)
+
+    @owner.setter
+    def owner(self, value):
+        """ set the creator userid """
+
+        self._owner = value
+        self._p_changed = 1
 
     @property
     def content_type(self):
@@ -296,6 +313,13 @@ class BaseFolder(PersistentMapping, Base):
 
         if not (content_type or iface):
             all_content = self.values()
+
+        # fix broken content (with emty ID) (TODO: REMOVE THIS CODE!)
+        for check in all_content:
+            if check.id == '':
+                import uuid
+                check.set_id(str( uuid.uuid1()))
+                check._p_changed = 1
 
         if kwargs.get('order_by', None):
             all_content.sort(lambda a, b: \
