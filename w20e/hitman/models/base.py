@@ -314,13 +314,6 @@ class BaseFolder(PersistentMapping, Base):
         if not (content_type or iface):
             all_content = self.values()
 
-        # fix broken content (with emty ID) (TODO: REMOVE THIS CODE!)
-        for check in all_content:
-            if check.id == '':
-                import uuid
-                check.set_id(str( uuid.uuid1()))
-                check._p_changed = 1
-
         if kwargs.get('order_by', None):
             all_content.sort(lambda a, b: \
                              cmp(getattr(a, kwargs['order_by'], 1),
