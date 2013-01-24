@@ -356,7 +356,9 @@ class BaseFolder(PersistentMapping, Base):
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
 
-        id = str(id).lower()
+        if isinstance(id, unicode):
+            id = id.encode('utf-8')
+        id = id.lower()
         id = re.sub('[^-a-z0-9_]+', '-', id)
         return id
 
