@@ -7,6 +7,7 @@ README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
+    'distribute',
     'pyramid',
     'ZODB3',
     'zope.component',
@@ -28,6 +29,7 @@ setup(name='w20e.hitman',
       url='',
       keywords='web pyramid',
       packages=find_packages(),
+      namespace_packages=['w20e'],
       include_package_data=True,
       zip_safe=False,
       install_requires = requires,
