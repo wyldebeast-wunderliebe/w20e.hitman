@@ -3,7 +3,7 @@ python:
   - "2.7"
 # command to install dependencies
 install:
-  - pip install converage
+  - pip install coverage
   - pip install git+http://github.com/wyldebeast-wunderliebe/w20e.forms#egg=w20e.forms
   - pip install -r requirements.txt --use-mirrors
 # command to run tests
