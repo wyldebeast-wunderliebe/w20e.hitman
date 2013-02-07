@@ -6,13 +6,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = [
-    'distribute',
-    'pyramid',
-    'ZODB3',
-    'zope.component',
-    'w20e.forms'
-    ]
+req = open('requirements.txt')
+requires = req.read().splitlines()
 
 setup(name='w20e.hitman',
       version='1.1.1rc',
