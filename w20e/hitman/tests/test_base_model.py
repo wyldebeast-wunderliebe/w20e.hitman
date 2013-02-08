@@ -1,11 +1,10 @@
-import unittest
 from pyramid import testing
 from w20e.hitman.models.base import BaseFolder, BaseContent
 
 
-class BaseModelTest(unittest.TestCase):
+class TestBaseModel:
 
-    def setUp(self):
+    def setup_class(self):
         self.config = testing.setUp()
 
         self.root = BaseFolder("root")
@@ -22,9 +21,9 @@ class BaseModelTest(unittest.TestCase):
         self.root.add_content(self.f0)
         self.root.add_content(self.f1)
 
-    def tearDown(self):
+    def teardown_class(self):
         testing.tearDown()
 
     def test_paths(self):
 
-        self.assertEquals(["f0", "x1"], self.x1.path)
+        assert ["f0", "x1"] == self.x1.path
