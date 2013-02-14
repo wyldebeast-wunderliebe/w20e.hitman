@@ -132,7 +132,6 @@ class EditView(ContentView):
 
     """ Generic edit form """
 
-
     def __init__(self, context, request):
 
         ContentView.__init__(self, context, request)
@@ -245,10 +244,9 @@ class AddView(BaseView, pyramidformview):
 
         errors = {}
 
-        submissions = set(["submit", "save", "w20e.forms.next"])
-        if submissions.intersection(self.request.params.keys()):
+        if self.request.params.get("w20e.forms.process", None):
             status, errors = self.form.view.handle_form(self.form,
-                                                        self.request.params)
+                    self.request.params)
         elif self.request.params.get("cancel", None):
             status = "cancelled"
         else:
