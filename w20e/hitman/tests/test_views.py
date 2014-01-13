@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 from pyramid import testing
 from pyramid.httpexceptions import HTTPFound
 from w20e.hitman.models.base import BaseFolder, BaseContent
