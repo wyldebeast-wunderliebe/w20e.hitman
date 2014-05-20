@@ -28,9 +28,6 @@ class Base(object):
 
     def __init__(self, content_id, data_attr_name="_DATA", data=None):
 
-        # make sure mixin class __init__ methods get called as well
-        super(Base, self).__init__(self, content_id, data_attr_name, data)
-
         if not data:
             data = {}
 
@@ -183,7 +180,7 @@ class BaseContent(Persistent, Base):
 
     implements(IContent)
 
-    def __init__(self, content_id, data=None):
+    def __init__(self, content_id, data=None, **kwargs):
 
         if not data:
             data = {}
@@ -203,7 +200,7 @@ class BaseFolder(PersistentMapping, Base):
 
     implements(IFolder)
 
-    def __init__(self, content_id, data=None):
+    def __init__(self, content_id, data=None, **kwargs):
 
         if not data:
             data = {}
