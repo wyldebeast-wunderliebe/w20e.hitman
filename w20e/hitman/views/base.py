@@ -244,11 +244,11 @@ class AddView(BaseView, pyramidformview):
 
         errors = {}
 
-        if self.request.params.get("w20e.forms.process", None):
+        if self.request.params.get("cancel", None):
+            status = "cancelled"
+        elif self.request.params.get("w20e.forms.process", None):
             status, errors = self.form.view.handle_form(self.form,
                     self.request.params)
-        elif self.request.params.get("cancel", None):
-            status = "cancelled"
         else:
             status = "unknown"
 
