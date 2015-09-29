@@ -6,10 +6,11 @@ class ObjectEvent(object):
 
     """ Initialize event """
 
-    def __init__(self, obj, parent):
+    def __init__(self, obj, parent, request=None):
 
         self.object = obj
         self.parent = parent
+        self.request = request
 
 
 class IObjectAddedEvent(IObjectEvent):
@@ -39,20 +40,12 @@ class ContentAdded(ObjectEvent):
 
     implements(IObjectAddedEvent)
 
-    def __init__(self, object, parent):
-        self.object = object
-        self.parent = parent
-
 
 class ContentRemoved(ObjectEvent):
 
     """ Object is removed """
 
     implements(IObjectRemovedEvent)
-
-    def __init__(self, object, parent):
-        self.object = object
-        self.parent = parent
 
 
 class ContentChanged(ObjectEvent):
@@ -61,5 +54,6 @@ class ContentChanged(ObjectEvent):
 
     implements(IObjectChangedEvent)
 
-    def __init__(self, object):
+    def __init__(self, object, request=None):
         self.object = object
+        self.request = request

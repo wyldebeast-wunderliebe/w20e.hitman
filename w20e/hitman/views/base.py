@@ -120,7 +120,8 @@ class DelView(BaseView):
 
             parent.remove_content(self.context.id)
 
-            self.request.registry.notify(ContentRemoved(content, parent))
+            self.request.registry.notify(ContentRemoved(
+                content, parent, self.request))
             return HTTPFound(location=self.after_del_redirect)
         elif self.request.params.get("cancel", None):
             return HTTPFound(location=self.url)
@@ -184,7 +185,8 @@ class EditView(ContentView):
                 delattr(self.context, "_v_data")
             except:
                 pass
-            self.request.registry.notify(ContentChanged(self.context))
+            self.request.registry.notify(ContentChanged(
+                self.context, self.request))
             self.context._p_changed = 1
 
             return HTTPFound(location=self.after_edit_redirect)
@@ -270,7 +272,8 @@ class AddView(BaseView, pyramidformview):
 
             self.context.add_content(content)
 
-            self.request.registry.notify(ContentAdded(content, self.context))
+            self.request.registry.notify(ContentAdded(
+                content, self.context, self.request))
 
             return HTTPFound(location=self.after_add_redirect)
 
