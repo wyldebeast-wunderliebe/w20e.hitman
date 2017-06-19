@@ -1,8 +1,8 @@
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from datetime import datetime
-from exceptions import UniqueConstraint
+from .exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
 import re
 from w20e.forms.formdata import FormData
@@ -10,6 +10,7 @@ from w20e.forms.xml.factory import XMLFormFactory
 from w20e.forms.xml.formfile import FormFile
 from w20e.forms.utils import find_file
 from w20e.hitman.utils import object_to_path
+from functools import cmp_to_key
 
 
 class IContent(Interface):
@@ -174,11 +175,10 @@ class Base(object):
         return object_to_path(self, path_sep=".", as_list=False)
 
 
+@implementer(IContent)
 class BaseContent(Persistent, Base):
 
     """ Base content, should be extended for real content """
-
-    implements(IContent)
 
     def __init__(self, content_id, data=None, **kwargs):
 
@@ -194,11 +194,10 @@ class BaseContent(Persistent, Base):
         return self.id
 
 
+@implementer(IFolder)
 class BaseFolder(PersistentMapping, Base):
 
     """ Base folder """
-
-    implements(IFolder)
 
     def __init__(self, content_id, data=None, **kwargs):
 
@@ -277,19 +276,24 @@ class BaseFolder(PersistentMapping, Base):
         NOTE: also returns temporary object IDs
         """
 
-        all_ids = self.keys()
+        all_ids = list(self.keys())
 
         def _order_cmp(a, b):
 
             max_order = len(self._order) + 1
 
-            return cmp(self._order.index(a) if a in self._order \
-                       else max_order,
-                       self._order.index(b) if b in self._order \
-                                               else max_order,
-                       )
+            a_order = max_order
+            if a in self._order:
+                a_order = self._order.index(a)
 
-        all_ids.sort(_order_cmp)
+            b_order = max_order
+            if b in self._order:
+                b_order = self._order.index(b)
+
+            return (a_order > b_order) - (a_order < b_order)
+
+
+        all_ids.sort(key=cmp_to_key(_order_cmp))
 
         return all_ids
 
@@ -305,31 +309,41 @@ class BaseFolder(PersistentMapping, Base):
             if isinstance(content_type, str):
                 content_type = [content_type]
 
-            all_content = [obj for obj in self.values() \
+            all_content = [obj for obj in list(self.values()) \
                     if getattr(obj, 'content_type', None) in content_type]
         if iface:
-            all_content = [obj for obj in self.values() \
+            all_content = [obj for obj in list(self.values()) \
                     if iface.providedBy(obj)]
 
         if not (content_type or iface):
-            all_content = self.values()
+            all_content = list(self.values())
 
         if kwargs.get('order_by', None):
-            all_content.sort(lambda a, b: \
-                             cmp(getattr(a, kwargs['order_by'], 1),
-                                 getattr(b, kwargs['order_by'], 1)))
+            def _order_by_cmp(a, b):
+
+                a_order = getattr(a, kwargs['order_by'], 1)
+                b_order = getattr(b, kwargs['order_by'], 1)
+
+                return (a_order > b_order) - (a_order < b_order)
+
+            all_content.sort(key=cmp_to_key(_order_by_cmp))
+
         else:
             def _order_cmp(a, b):
 
                 max_order = len(self._order) + 1
 
-                return cmp(self._order.index(a.id) if a.id in self._order \
-                           else max_order,
-                            self._order.index(b.id) if b.id in self._order \
-                                                    else max_order,
-                           )
+                a_order = max_order
+                if a.id in self._order:
+                    a_order = self._order.index(a.id)
 
-            all_content.sort(_order_cmp)
+                b_order = max_order
+                if b.id in self._order:
+                    b_order = self._order.index(b.id)
+
+                return (a_order > b_order) - (a_order < b_order)
+
+            all_content.sort(key=cmp_to_key(_order_cmp))
 
         return all_content
 
@@ -356,8 +370,8 @@ class BaseFolder(PersistentMapping, Base):
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
 
-        if isinstance(id, unicode):
-            id = id.encode('utf-8')
+        # if isinstance(id, str):
+        #     id = id.encode('utf-8')
         id = id.lower()
         id = re.sub('[^-a-z0-9_]+', '-', id)
         return id
