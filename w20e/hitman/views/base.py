@@ -69,8 +69,9 @@ class ContentView(BaseView, pyramidformview):
     def __init__(self, context, request, form=None):
 
         BaseView.__init__(self, context, request)
-        pyramidformview.__init__(self, context, request,
-                context.__form__(request))
+        pyramidformview.__init__(
+            self, context, request,
+            context.__form__(request))
 
     @property
     def changed(self):
@@ -120,8 +121,6 @@ class DelView(BaseView):
 
             parent.remove_content(self.context.id)
 
-            self.request.registry.notify(ContentRemoved(
-                content, parent, self.request))
             return HTTPFound(location=self.after_del_redirect)
         elif self.request.params.get("cancel", None):
             return HTTPFound(location=self.url)
@@ -185,8 +184,6 @@ class EditView(ContentView):
                 delattr(self.context, "_v_data")
             except:
                 pass
-            self.request.registry.notify(ContentChanged(
-                self.context, self.request))
             self.context._p_changed = 1
 
             return HTTPFound(location=self.after_edit_redirect)
@@ -249,15 +246,10 @@ class AddView(BaseView, pyramidformview):
         if self.request.params.get("cancel", None):
             status = "cancelled"
         elif self.request.params.get("w20e.forms.process", None):
-            status, errors = self.form.view.handle_form(self.form,
-                    self.request.params)
+            status, errors = self.form.view.handle_form(
+                self.form, self.request.params)
         else:
             status = "unknown"
-
-        #if status == "valid":
-        #    # Hmm, looks like multipage. do nothing?
-        #    #content = self.clazz("_TMP")
-        #    #self.form.submission.submit(self.form, content, self.request)
 
         if status == "completed":
 
@@ -271,9 +263,6 @@ class AddView(BaseView, pyramidformview):
             content.set_id(content_id)
 
             self.context.add_content(content)
-
-            self.request.registry.notify(ContentAdded(
-                content, self.context, self.request))
 
             return HTTPFound(location=self.after_add_redirect)
 

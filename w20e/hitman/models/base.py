@@ -10,6 +10,8 @@ from w20e.forms.xml.factory import XMLFormFactory
 from w20e.forms.xml.formfile import FormFile
 from w20e.forms.utils import find_file
 from w20e.hitman.utils import object_to_path
+from zope.component import getSiteManager
+from ..events import ContentRemoved, ContentAdded, ContentChanged
 
 
 class IContent(Interface):
@@ -209,7 +211,7 @@ class BaseFolder(PersistentMapping, Base):
         Base.__init__(self, content_id, data=data)
         self._order = []
 
-    def add_content(self, content):
+    def add_content(self, content, emit_event=True):
 
         # don't replace the content
         if content.id in self:
@@ -221,7 +223,11 @@ class BaseFolder(PersistentMapping, Base):
         self[content.id] = content
         self._order.append(content.id)
 
-    def rename_content(self, id_from, id_to):
+        if emit_event:
+            sm = getSiteManager()
+            sm.notify(ContentAdded(content, self))
+
+    def rename_content(self, id_from, id_to, emit_event=True):
 
         """ Move object at id_from to id_to key"""
 
@@ -245,12 +251,33 @@ class BaseFolder(PersistentMapping, Base):
 
         self[content.id] = content
 
+        if emit_event:
+            sm = getSiteManager()
+            sm.notify(ContentChanged(content))
+
+            # all children objects will now have to update the path
+            # (location) index. This could be speeded up by signalling
+            # that only the path changed and reindex could be more specific
+            if IFolder.providedBy(content):
+                for child in content.find_content():
+                    sm.notify(ContentChanged(child))
+
     def remove_content(self, content_id):
 
         try:
             content = self.get(content_id, None)
             del self[content_id]
             self._order.remove(content_id)
+
+            sm = getSiteManager()
+            sm.notify(ContentRemoved(content, self))
+            # all children objects will now have to update the path
+            # (location) index. This could be speeded up by signalling
+            # that only the path changed and reindex could be more specific
+            if IFolder.providedBy(content):
+                for child in content.find_content():
+                    sm.notify(ContentRemoved(child, child.__parent__))
+
             return content
         except:
             return None
@@ -283,11 +310,10 @@ class BaseFolder(PersistentMapping, Base):
 
             max_order = len(self._order) + 1
 
-            return cmp(self._order.index(a) if a in self._order \
-                       else max_order,
-                       self._order.index(b) if b in self._order \
-                                               else max_order,
-                       )
+            return cmp(
+                self._order.index(a) if a in self._order else max_order,
+                self._order.index(b) if b in self._order else max_order
+            )
 
         all_ids.sort(_order_cmp)
 
@@ -305,29 +331,32 @@ class BaseFolder(PersistentMapping, Base):
             if isinstance(content_type, str):
                 content_type = [content_type]
 
-            all_content = [obj for obj in self.values() \
-                    if getattr(obj, 'content_type', None) in content_type]
+            all_content = [
+                obj for obj in self.values()
+                if getattr(obj, 'content_type', None) in content_type]
         if iface:
-            all_content = [obj for obj in self.values() \
-                    if iface.providedBy(obj)]
+            all_content = [
+                obj for obj in self.values() if iface.providedBy(obj)]
 
         if not (content_type or iface):
             all_content = self.values()
 
         if kwargs.get('order_by', None):
-            all_content.sort(lambda a, b: \
-                             cmp(getattr(a, kwargs['order_by'], 1),
-                                 getattr(b, kwargs['order_by'], 1)))
+            all_content.sort(
+                lambda a, b: cmp(
+                    getattr(a, kwargs['order_by'], 1),
+                    getattr(b, kwargs['order_by'], 1)))
         else:
             def _order_cmp(a, b):
 
                 max_order = len(self._order) + 1
 
-                return cmp(self._order.index(a.id) if a.id in self._order \
-                           else max_order,
-                            self._order.index(b.id) if b.id in self._order \
-                                                    else max_order,
-                           )
+                return cmp(
+                    self._order.index(a.id)
+                    if a.id in self._order else max_order,
+                    self._order.index(b.id)
+                    if b.id in self._order else max_order
+                )
 
             all_content.sort(_order_cmp)
 
@@ -366,7 +395,7 @@ class BaseFolder(PersistentMapping, Base):
 
         base_id = self._normalize_id(base_id)
 
-        if not base_id in self:
+        if base_id not in self:
             return base_id
 
         cnt = 1
@@ -386,12 +415,21 @@ class BaseFolder(PersistentMapping, Base):
         try:
             self._order.remove(content_id)
             self._order.insert(curr_idx + delta, content_id)
+            sm = getSiteManager()
+            sm.notify(ContentChanged(content))
         except:
             pass
 
     def set_order(self, order=[]):
 
         self._order = order
+
+        # emit changed event for all children
+        sm = getSiteManager()
+        children = self.list_content()
+        for child in children:
+            sm.notify(
+                ContentChanged(child))
 
     def __repr__(self):
         """ return the ID as base representation """

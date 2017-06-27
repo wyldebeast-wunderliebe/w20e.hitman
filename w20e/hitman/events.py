@@ -6,11 +6,10 @@ class ObjectEvent(object):
 
     """ Initialize event """
 
-    def __init__(self, obj, parent, request=None):
+    def __init__(self, obj, parent):
 
         self.object = obj
         self.parent = parent
-        self.request = request
 
 
 class IObjectAddedEvent(IObjectEvent):
@@ -54,6 +53,5 @@ class ContentChanged(ObjectEvent):
 
     implements(IObjectChangedEvent)
 
-    def __init__(self, object, request=None):
+    def __init__(self, object):
         self.object = object
-        self.request = request
