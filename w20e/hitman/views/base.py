@@ -3,7 +3,7 @@ from w20e.hitman.models import Registry
 from w20e.forms.pyramid.formview import formview as pyramidformview
 from pyramid.url import resource_url
 from datetime import datetime
-from ..events import ContentRemoved, ContentAdded, ContentChanged
+from ..events import ContentChanged
 
 
 class BaseView(object):
@@ -116,7 +116,6 @@ class DelView(BaseView):
 
         if self.request.params.get("submit", None):
 
-            content = self.context
             parent = self.context.__parent__
 
             parent.remove_content(self.context.id)
@@ -184,6 +183,7 @@ class EditView(ContentView):
                 delattr(self.context, "_v_data")
             except:
                 pass
+            self.request.registry.notify(ContentChanged(self.context))
             self.context._p_changed = 1
 
             return HTTPFound(location=self.after_edit_redirect)
