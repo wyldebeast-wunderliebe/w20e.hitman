@@ -231,7 +231,9 @@ class BaseFolder(PersistentMapping, Base):
 
         """ Move object at id_from to id_to key"""
 
-        if id_to in self:
+        normalized_id_to = self._normalize_id(id_to)
+
+        if normalized_id_to in self:
             raise UniqueConstraint("an item with this ID already exists at \
                     this level")
 
@@ -242,12 +244,12 @@ class BaseFolder(PersistentMapping, Base):
 
         del self[id_from]
 
-        content._id = id_to
-        content.__name__ = id_to
+        content._id = normalized_id_to
+        content.__name__ = normalized_id_to
 
         # retain order
         if id_from in self._order:
-            self._order[self._order.index(id_from)] = id_to
+            self._order[self._order.index(id_from)] = normalized_id_to
 
         self[content.id] = content
 
