@@ -13,7 +13,7 @@ class ITestContent(Interface):
 class TestContent(BaseContent):
     """ implementation of the BaseContent class just for testing """
 
-    implements(ITestContent)
+    @implementer(ITestContent)
     edit_form = 'test_content_form.xml'
 
 

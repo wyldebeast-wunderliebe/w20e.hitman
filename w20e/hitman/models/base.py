@@ -1,9 +1,8 @@
 from __future__ import absolute_import
-from past.builtins import cmp
 from builtins import object
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from datetime import datetime
 from .exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
@@ -179,11 +178,10 @@ class Base(object):
         return object_to_path(self, path_sep=".", as_list=False)
 
 
+@implementer(IContent)
 class BaseContent(Persistent, Base):
 
     """ Base content, should be extended for real content """
-
-    implements(IContent)
 
     def __init__(self, content_id, data=None, **kwargs):
 
@@ -199,11 +197,11 @@ class BaseContent(Persistent, Base):
         return self.id
 
 
+@implementer(IFolder)
 class BaseFolder(PersistentMapping, Base):
 
     """ Base folder """
 
-    implements(IFolder)
 
     def __init__(self, content_id, data=None, **kwargs):
 
