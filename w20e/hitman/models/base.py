@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
 from zope.interface import Interface, implements
 from datetime import datetime
-from exceptions import UniqueConstraint
+from .exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
 import re
 from w20e.forms.formdata import FormData
