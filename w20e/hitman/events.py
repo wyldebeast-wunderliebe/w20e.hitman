@@ -1,3 +1,4 @@
+from builtins import object
 from zope.component.interfaces import IObjectEvent
 from zope.interface import implements, Attribute
 

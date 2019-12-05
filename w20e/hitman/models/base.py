@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from past.builtins import cmp
+from builtins import object
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
 from zope.interface import Interface, implements
@@ -307,7 +309,7 @@ class BaseFolder(PersistentMapping, Base):
         NOTE: also returns temporary object IDs
         """
 
-        all_ids = self.keys()
+        all_ids = list(self.keys())
 
         def _order_cmp(a, b):
 
@@ -335,14 +337,14 @@ class BaseFolder(PersistentMapping, Base):
                 content_type = [content_type]
 
             all_content = [
-                obj for obj in self.values()
+                obj for obj in list(self.values())
                 if getattr(obj, 'content_type', None) in content_type]
         if iface:
             all_content = [
-                obj for obj in self.values() if iface.providedBy(obj)]
+                obj for obj in list(self.values()) if iface.providedBy(obj)]
 
         if not (content_type or iface):
-            all_content = self.values()
+            all_content = list(self.values())
 
         if kwargs.get('order_by', None):
             all_content.sort(
@@ -388,7 +390,7 @@ class BaseFolder(PersistentMapping, Base):
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
 
-        if isinstance(id, unicode):
+        if isinstance(id, str):
             id = id.encode('utf-8')
         id = id.lower()
         id = re.sub('[^-a-z0-9_]+', '-', id)
