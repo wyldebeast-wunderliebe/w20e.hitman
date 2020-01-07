@@ -32,6 +32,9 @@ class Base(object):
 
     """ Base content, should be extended for real content """
 
+    def __bool__(self):
+        return True
+
     def __init__(self, content_id, data_attr_name="_DATA", data=None):
 
         if not data:
