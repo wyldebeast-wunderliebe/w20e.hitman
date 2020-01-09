@@ -1,3 +1,4 @@
+from builtins import object
 from pyramid.httpexceptions import HTTPFound
 from w20e.hitman.models import Registry
 from w20e.forms.pyramid.formview import formview as pyramidformview

@@ -1,8 +1,12 @@
+from __future__ import absolute_import
+from builtins import object
+
+from past.builtins import cmp
 from persistent.mapping import PersistentMapping
 from persistent import Persistent
-from zope.interface import Interface, implements
+from zope.interface import Interface, implementer
 from datetime import datetime
-from exceptions import UniqueConstraint
+from .exceptions import UniqueConstraint
 from BTrees.OOBTree import OOBTree
 import re
 from w20e.forms.formdata import FormData
@@ -27,6 +31,9 @@ class IFolder(IContent):
 class Base(object):
 
     """ Base content, should be extended for real content """
+
+    def __bool__(self):
+        return True
 
     def __init__(self, content_id, data_attr_name="_DATA", data=None):
 
@@ -176,11 +183,10 @@ class Base(object):
         return object_to_path(self, path_sep=".", as_list=False)
 
 
+@implementer(IContent)
 class BaseContent(Persistent, Base):
 
     """ Base content, should be extended for real content """
-
-    implements(IContent)
 
     def __init__(self, content_id, data=None, **kwargs):
 
@@ -196,11 +202,10 @@ class BaseContent(Persistent, Base):
         return self.id
 
 
+@implementer(IFolder)
 class BaseFolder(PersistentMapping, Base):
 
     """ Base folder """
-
-    implements(IFolder)
 
     def __init__(self, content_id, data=None, **kwargs):
 
@@ -306,7 +311,7 @@ class BaseFolder(PersistentMapping, Base):
         NOTE: also returns temporary object IDs
         """
 
-        all_ids = self.keys()
+        all_ids = list(self.keys())
 
         def _order_cmp(a, b):
 
@@ -334,33 +339,20 @@ class BaseFolder(PersistentMapping, Base):
                 content_type = [content_type]
 
             all_content = [
-                obj for obj in self.values()
+                obj for obj in list(self.values())
                 if getattr(obj, 'content_type', None) in content_type]
         if iface:
             all_content = [
-                obj for obj in self.values() if iface.providedBy(obj)]
+                obj for obj in list(self.values()) if iface.providedBy(obj)]
 
         if not (content_type or iface):
-            all_content = self.values()
+            all_content = list(self.values())
 
         if kwargs.get('order_by', None):
             all_content.sort(
-                lambda a, b: cmp(
-                    getattr(a, kwargs['order_by'], 1),
-                    getattr(b, kwargs['order_by'], 1)))
+                key=lambda x: getattr(x, kwargs['order_by'], None))
         else:
-            def _order_cmp(a, b):
-
-                max_order = len(self._order) + 1
-
-                return cmp(
-                    self._order.index(a.id)
-                    if a.id in self._order else max_order,
-                    self._order.index(b.id)
-                    if b.id in self._order else max_order
-                )
-
-            all_content.sort(_order_cmp)
+            all_content.sort(key=lambda x: x.id)
 
         return all_content
 
@@ -386,9 +378,6 @@ class BaseFolder(PersistentMapping, Base):
 
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
-
-        if isinstance(id, unicode):
-            id = id.encode('utf-8')
         id = id.lower()
         id = re.sub('[^-a-z0-9_]+', '-', id)
         return id

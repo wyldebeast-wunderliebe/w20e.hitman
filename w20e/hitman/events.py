@@ -1,5 +1,6 @@
+from builtins import object
 from zope.component.interfaces import IObjectEvent
-from zope.interface import implements, Attribute
+from zope.interface import implementer, Attribute
 
 
 class ObjectEvent(object):
@@ -33,25 +34,22 @@ class IObjectChangedEvent(IObjectEvent):
     """ Interface for changed objects """
 
 
+@implementer(IObjectAddedEvent)
 class ContentAdded(ObjectEvent):
 
     """ Object is added """
 
-    implements(IObjectAddedEvent)
 
-
+@implementer(IObjectRemovedEvent)
 class ContentRemoved(ObjectEvent):
 
     """ Object is removed """
 
-    implements(IObjectRemovedEvent)
 
-
+@implementer(IObjectChangedEvent)
 class ContentChanged(ObjectEvent):
 
     """ Object is changed """
-
-    implements(IObjectChangedEvent)
 
     def __init__(self, object):
         self.object = object

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from pyramid import testing
 from w20e.hitman.models.base import BaseFolder, BaseContent
 import datetime
@@ -11,11 +13,11 @@ class ITestContent(Interface):
 class TestContent(BaseContent):
     """ implementation of the BaseContent class just for testing """
 
-    implements(ITestContent)
+    @implementer(ITestContent)
     edit_form = 'test_content_form.xml'
 
 
-class TestBaseModel:
+class TestBaseModel(object):
 
     def setup_class(self):
         self.config = testing.setUp()

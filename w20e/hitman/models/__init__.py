@@ -1,4 +1,5 @@
-class Registry:
+from builtins import object
+class Registry(object):
 
     """ Global registry for content types """
 
