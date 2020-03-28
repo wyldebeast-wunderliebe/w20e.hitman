@@ -93,7 +93,6 @@ class Base(object):
 
     @property
     def __data__(self):
-
         """ Wrap data in formdata container. Keep it volatile though,
         so as not to pollute the DB. """
 
@@ -125,7 +124,6 @@ class Base(object):
             pass  # no worries.we didn't have the cached value
 
     def __form__(self, request):
-
         """ Volatile form """
 
         try:
@@ -170,14 +168,12 @@ class Base(object):
 
     @property
     def path(self):
-
         """ Return path from root as list of id's"""
 
         return object_to_path(self, as_list=True)
 
     @property
     def dottedpath(self):
-
         """ Return path as dot separated string """
 
         return object_to_path(self, path_sep=".", as_list=False)
@@ -233,7 +229,6 @@ class BaseFolder(PersistentMapping, Base):
             sm.notify(ContentAdded(content, self))
 
     def rename_content(self, id_from, id_to, emit_event=True):
-
         """ Move object at id_from to id_to key"""
 
         normalized_id_to = self._normalize_id(id_to)
@@ -327,7 +322,6 @@ class BaseFolder(PersistentMapping, Base):
         return all_ids
 
     def list_content(self, content_type=None, iface=None, **kwargs):
-
         """ List content of this folder. If content_type is given,
         list only these things.
         """
@@ -349,15 +343,16 @@ class BaseFolder(PersistentMapping, Base):
             all_content = list(self.values())
 
         if kwargs.get('order_by', None):
+            reverse = kwargs.get('order_by_reversed', 0)
             all_content.sort(
-                key=lambda x: getattr(x, kwargs['order_by'], None))
+                key=lambda x: getattr(x, kwargs['order_by']),
+                reverse=reverse)
         else:
             all_content.sort(key=lambda x: x.id)
 
         return all_content
 
     def find_content(self, content_type=None):
-
         """ Find content recursively from the given folder. Use it
         wisely... """
 
@@ -397,7 +392,6 @@ class BaseFolder(PersistentMapping, Base):
         return "%s_%s" % (base_id, cnt)
 
     def move_content(self, content_id, delta):
-
         """ Move the content in the order by delta, where delta may be
         negative """
 
