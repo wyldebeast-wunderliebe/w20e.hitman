@@ -16,6 +16,7 @@ from w20e.forms.utils import find_file
 from w20e.hitman.utils import object_to_path
 from zope.component import getSiteManager
 from ..events import ContentRemoved, ContentAdded, ContentChanged
+from slugify import slugify
 
 
 class IContent(Interface):
@@ -373,9 +374,10 @@ class BaseFolder(PersistentMapping, Base):
 
     def _normalize_id(self, id):
         """ change all non-letters and non-numbers to dash """
-        id = id.lower()
-        id = re.sub('[^-a-z0-9_]+', '-', id)
-        return id
+        # id = id.lower()
+        # id = re.sub('[^-a-z0-9_]+', '-', id)
+        # return id
+        return slugify(id)
 
     def generate_content_id(self, base_id):
 
