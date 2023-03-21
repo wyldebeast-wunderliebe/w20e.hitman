@@ -72,7 +72,7 @@ class ContentView(BaseView, pyramidformview):
         BaseView.__init__(self, context, request)
         pyramidformview.__init__(
             self, context, request,
-            context.__form__(request))
+            context._form_(request))
 
     @property
     def changed(self):
@@ -206,10 +206,10 @@ class AddView(BaseView, pyramidformview):
 
         tmp_obj = clazz("TMP")
 
-        form = tmp_obj.__form__(request)
+        form = tmp_obj._form_(request)
 
         # note: If you want to prefill the formdata, you can use
-        # the __form__ override, or if in pycms, use the IFormModifier
+        # the _form_ override, or if in pycms, use the IFormModifier
 
         pyramidformview.__init__(self, context, request,
                                  form,

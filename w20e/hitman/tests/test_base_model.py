@@ -57,11 +57,11 @@ class TestBaseModel(object):
         assert self.x0.allowed_content_types(request) == []
         assert self.x0.base_id == 'testcontent'
         assert self.x0.has_parent
-        assert self.x0.__data__.as_dict() == {}
+        assert self.x0._data_.as_dict() == {}
         self.x0.set_attribute('whatyouwant', 'a little respect')
-        assert self.x0.__data__.as_dict() == {
+        assert self.x0._data_.as_dict() == {
                 'whatyouwant': 'a little respect'}
-        form = self.x0.__form__(request)
+        form = self.x0._form_(request)
         assert self.x0.title == 'x0'
         now = datetime.datetime.now()
         assert self.x0.created <= now

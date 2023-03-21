@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from builtins import object
 from pyramid import testing
 from pyramid.httpexceptions import HTTPFound
@@ -95,7 +95,7 @@ class TestUtils(object):
         assert view.content_type == 'testcontent'
         assert view.after_edit_redirect == 'http://example.com/root/f0/x0/'
 
-        assert self.x0.__data__['name'] is None
+        assert self.x0._data_['name'] is None
 
         # submit empty edit form, will result in error (name is required)
         request.params['w20e.forms.process'] = 1
@@ -103,7 +103,7 @@ class TestUtils(object):
         assert isinstance(result, dict)
         assert 'name' in result['errors']
         assert 'required' in result['errors']['name']
-        assert self.x0.__data__['name'] is None
+        assert self.x0._data_['name'] is None
 
         # submit form with name
         name = "Gëllo, I'm x0"
@@ -112,7 +112,7 @@ class TestUtils(object):
         result = view()
         assert isinstance(result, HTTPFound)
         assert result.location == 'http://example.com/root/f0/x0/'
-        assert self.x0.__data__['name'] == name
+        assert self.x0._data_['name'] == name
 
     def test_AddView(self):
 
@@ -149,4 +149,4 @@ class TestUtils(object):
         assert result.location == 'http://example.com/root/f1/'
         content = self.f1.list_content(content_type='testcontent')
         assert len(content) == 1
-        assert content[0].__data__['name'] == name
+        assert content[0]._data_['name'] == name
