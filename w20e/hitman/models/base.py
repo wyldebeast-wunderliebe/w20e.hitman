@@ -37,7 +37,6 @@ class Base(object):
         return True
 
     def __init__(self, content_id, data_attr_name="_DATA", data=None):
-
         if not data:
             data = {}
 
@@ -53,11 +52,9 @@ class Base(object):
 
     @property
     def id(self):
-
         return self._id
 
     def set_id(self, id):
-
         self._id = id
 
     @property
@@ -75,21 +72,17 @@ class Base(object):
 
     @property
     def content_type(self):
-
         return self.__class__.__name__.lower()
 
     def allowed_content_types(self, request):
-
         return []
 
     @property
     def base_id(self):
-
         return self.content_type
 
     @property
     def has_parent(self):
-
         return getattr(self, "__parent__", None)
 
     @property
@@ -100,7 +93,6 @@ class Base(object):
         try:
             return self._v_data
         except:
-
             data = getattr(self, self.data_attr_name)
 
             # migrate old hashmaps to OOBTree if necessary
@@ -130,7 +122,6 @@ class Base(object):
         try:
             return self._v_form
         except:
-
             form = find_file(self.edit_form, self.__class__)
             xmlff = XMLFormFactory(FormFile(form).filename)
             self._v_form = xmlff.create_form(action="")
@@ -139,22 +130,18 @@ class Base(object):
 
     @property
     def title(self):
-
         return self.id
 
     @property
     def created(self):
-
         return self._created
 
     @property
     def changed(self):
-
         return self._changed
 
     @property
     def root(self):
-
         _root = self
 
         while getattr(_root, "__parent__", None) is not None:
@@ -166,7 +153,6 @@ class Base(object):
 
     @classmethod
     def defaults(self):
-
         return {}
 
     @property
@@ -188,7 +174,6 @@ class BaseContent(Persistent, Base):
     """Base content, should be extended for real content"""
 
     def __init__(self, content_id, data=None, **kwargs):
-
         if not data:
             data = {}
 
@@ -207,7 +192,6 @@ class BaseFolder(PersistentMapping, Base):
     """Base folder"""
 
     def __init__(self, content_id, data=None, **kwargs):
-
         if not data:
             data = {}
 
@@ -216,7 +200,6 @@ class BaseFolder(PersistentMapping, Base):
         self._order = []
 
     def add_content(self, content, emit_event=True):
-
         # don't replace the content
         if content.id in self:
             raise UniqueConstraint(
@@ -272,7 +255,6 @@ class BaseFolder(PersistentMapping, Base):
                     sm.notify(ContentChanged(child))
 
     def remove_content(self, content_id):
-
         try:
             content = self.get(content_id, None)
             del self[content_id]
@@ -292,17 +274,13 @@ class BaseFolder(PersistentMapping, Base):
             return None
 
     def get_content(self, content_id, content_type=None):
-
         obj = self.get(content_id, None)
 
         if content_type:
-
             if getattr(obj, "content_type", None) == content_type:
-
                 return obj
 
             else:
-
                 return None
 
         return obj
@@ -316,7 +294,6 @@ class BaseFolder(PersistentMapping, Base):
         all_ids = list(self.keys())
 
         def _order_cmp(a, b):
-
             max_order = len(self._order) + 1
 
             return cmp(
@@ -370,7 +347,6 @@ class BaseFolder(PersistentMapping, Base):
         folders = self.list_content(iface=IFolder)
 
         for sub in folders:
-
             try:
                 found += sub.find_content(content_type=content_type)
             except:
@@ -387,7 +363,6 @@ class BaseFolder(PersistentMapping, Base):
         return slugify(id)
 
     def generate_content_id(self, base_id):
-
         base_id = self._normalize_id(base_id)
 
         if base_id not in self:
@@ -415,7 +390,6 @@ class BaseFolder(PersistentMapping, Base):
             pass
 
     def set_order(self, order=[]):
-
         self._order = order
 
         # emit changed event for all children
