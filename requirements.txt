@@ -3,4 +3,3 @@ pyramid
 ZODB3
 zope.component
 w20e.forms
-future

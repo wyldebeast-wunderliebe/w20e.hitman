@@ -1,4 +1,4 @@
-from builtins import object
+
 from pyramid import testing
 from w20e.hitman.models.base import BaseFolder, BaseContent
 from w20e.hitman.utils import object_to_path, path_to_object

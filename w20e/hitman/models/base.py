@@ -1,22 +1,20 @@
-from __future__ import absolute_import
-from builtins import object
-
-from past.builtins import cmp
-from persistent.mapping import PersistentMapping
-from persistent import Persistent
-from zope.interface import Interface, implementer
 from datetime import datetime
-from .exceptions import UniqueConstraint
-from BTrees.OOBTree import OOBTree
-import re
+
+from BTrees.OOBTree import OOBTree  # type: ignore
+from persistent import Persistent
+from persistent.mapping import PersistentMapping
+from slugify import slugify
 from w20e.forms.formdata import FormData
+from w20e.forms.utils import find_file
 from w20e.forms.xml.factory import XMLFormFactory
 from w20e.forms.xml.formfile import FormFile
-from w20e.forms.utils import find_file
-from w20e.hitman.utils import object_to_path
 from zope.component import getSiteManager
-from ..events import ContentRemoved, ContentAdded, ContentChanged
-from slugify import slugify
+from zope.interface import Interface, implementer
+
+from w20e.hitman.utils import object_to_path
+
+from ..events import ContentAdded, ContentChanged, ContentRemoved
+from .exceptions import UniqueConstraint
 
 
 class IContent(Interface):
@@ -95,10 +93,10 @@ class Base(object):
         except:
             data = getattr(self, self.data_attr_name)
 
-            # migrate old hashmaps to OOBTree if necessary
-            if not isinstance(data, OOBTree):
-                data = OOBTree(data)
-                setattr(self, self.data_attr_name, data)
+            # # migrate old hashmaps to OOBTree if necessary
+            # if not isinstance(data, OOBTree):
+            #     data = OOBTree(data)
+            #     setattr(self, self.data_attr_name, data)
 
             self._v_data = FormData(data=data)
             return self._v_data
@@ -287,21 +285,17 @@ class BaseFolder(PersistentMapping, Base):
 
     def _list_content_ids(self, **kwargs):
         """
-        return all content IDs.
+        Return all content IDs.
         NOTE: also returns temporary object IDs
         """
 
         all_ids = list(self.keys())
 
-        def _order_cmp(a, b):
+        def custom_sort_key(item):
             max_order = len(self._order) + 1
+            return (self._order.index(item) if item in self._order else max_order, item)
 
-            return cmp(
-                self._order.index(a) if a in self._order else max_order,
-                self._order.index(b) if b in self._order else max_order,
-            )
-
-        all_ids.sort(_order_cmp)
+        all_ids.sort(key=custom_sort_key)
 
         return all_ids
 
